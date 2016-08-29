@@ -1,7 +1,7 @@
 package bean.datasourceinfo.handler;
 
-import com.jason.middletest.bean.basebean.ProducerBeanDefinitionParser;
-import com.jason.middletest.bean.datasourceinfo.parser.DatesourceBeanDefinitionParseV1;
+import bean.basebean.ProducerBeanDefinitionParser;
+import bean.datasourceinfo.parser.DatesourceBeanDefinitionParseV1;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**

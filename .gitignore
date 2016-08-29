@@ -1,4 +1,3 @@
-phpCode/
 # maven ignore
 target/
 *.jar

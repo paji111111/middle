@@ -1,6 +1,7 @@
 package bean.datasourceinfo.parser;
 
-import com.jason.middletest.bean.datasourceinfo.DataSourceInfo;
+
+import bean.datasourceinfo.DataSourceInfo;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
