@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aty="http://www.jason.com/schema/aty"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.jason.com/schema/aty
+  http://www.jason.com/schema/aty.xsd">
+
+
+    <bean id="test" name="test" class="bean.basebean.TestClass"/>
+    <aty:datasource id="myDataSourcce" url="jdbc:mysql://localhost:3309/demodb" userName="root" password="root" interface="com.jason.middletest.bean.basebean.TestInterface" ref="test"/>
+
+    <aty:producer id="ii" interface="com.jason.middletest.bean.basebean.TestInterface" targetBean="test"/>
+
+</beans>
