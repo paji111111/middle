@@ -9,8 +9,8 @@
 
 
     <bean id="test" name="test" class="bean.basebean.TestClass"/>
-    <aty:datasource id="myDataSourcce" url="jdbc:mysql://localhost:3309/demodb" userName="root" password="root" interface="com.jason.middletest.bean.basebean.TestInterface" ref="test"/>
+    <aty:datasource id="myDataSourcce" url="jdbc:mysql://localhost:3309/demodb" userName="root" password="root" interface="bean.basebean.TestInterface" ref="test"/>
 
-    <aty:producer id="ii" interface="com.jason.middletest.bean.basebean.TestInterface" targetBean="test"/>
+    <aty:producer id="ii" interface="bean.basebean.TestInterface" targetBean="test"/>
 
 </beans>
