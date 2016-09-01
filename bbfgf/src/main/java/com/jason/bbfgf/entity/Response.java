@@ -8,6 +8,11 @@ public class Response {
     private Object result;
     private String error;
 
+
+    public boolean isError() {
+        return error!=null;
+    }
+
     public void setRequestId(String requestId) {
         this.requestId = requestId;
     }
@@ -31,4 +36,6 @@ public class Response {
     public String getError() {
         return error;
     }
+
+
 }
