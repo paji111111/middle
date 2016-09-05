@@ -1,5 +1,7 @@
-package com.jason.bbfgf.client;
+package com.jason.bbfgf.province;
 
+import com.jason.bbfgf.client.AsyncKKCallback;
+import com.jason.bbfgf.client.KKClient;
 import com.jason.bbfgf.entity.Request;
 import com.jason.bbfgf.entity.Response;
 import org.slf4j.Logger;
@@ -14,38 +16,49 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.ReentrantLock;
 
-
 /**
- * Created by paji on 16/9/1
+ * Created by paji on 16/9/5
  */
-public class KKFuture implements Future<Object> {
+public class PPFuture implements Future<Object> {
+    private static final Logger logger = LoggerFactory.getLogger(PPFuture.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KKFuture.class);
 
-    private Sync sync;
     private Request request;
     private Response response;
-    private long startTime;
+    private Long startTime;
 
+    private ReentrantLock lock = new ReentrantLock();
+    private List<AsyncKKCallback> pendingCallbacks = new ArrayList<AsyncKKCallback>();
     private long responseTimeThreshold = 5000;
 
-    private List<AsyncKKCallback> pendingCallbacks = new ArrayList<AsyncKKCallback>();
-    private ReentrantLock lock = new ReentrantLock();
+    private StatusSync statusSync;
 
-    public KKFuture(Request request) {
-        this.sync = new Sync();
+    public PPFuture(Request request) {
+
         this.request = request;
+        statusSync = new StatusSync();
         this.startTime = System.currentTimeMillis();
+
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isCancelled() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isDone() {
-        return sync.isDone();
+        return statusSync.isDone();
     }
 
     @Override
     public Object get() throws InterruptedException, ExecutionException {
-        sync.acquire(-1);
+        statusSync.acquire(-1);
         if (this.response != null) {
             return this.response.getResult();
         } else {
@@ -55,7 +68,7 @@ public class KKFuture implements Future<Object> {
 
     @Override
     public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        boolean success = sync.tryAcquireNanos(-1, unit.toNanos(timeout));
+        boolean success = statusSync.tryAcquireNanos(-1, unit.toNanos(timeout));
         if (success) {
             if (this.response != null) {
                 return this.response.getResult();
@@ -69,24 +82,14 @@ public class KKFuture implements Future<Object> {
         }
     }
 
-    @Override
-    public boolean isCancelled() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void done(Response reponse) {
-        this.response = reponse;
-        sync.release(1);
+    public void done(Response response) {
+        this.response = response;
+        statusSync.release(1);
         invokeCallbacks();
         // Threshold
         long responseTime = System.currentTimeMillis() - startTime;
         if (responseTime > this.responseTimeThreshold) {
-            LOGGER.warn("Service response time is too slow. Request id = " + reponse.getRequestId() + ". Response Time = " + responseTime + "ms");
+            logger.warn("Service response time is too slow. Request id = " + response.getRequestId() + ". Response Time = " + responseTime + "ms");
         }
     }
 
@@ -100,20 +103,6 @@ public class KKFuture implements Future<Object> {
             lock.unlock();
         }
     }
-
-//    public KKFuture addCallback(AsyncKKCallback callback) {
-//        lock.lock();
-//        try {
-//            if (isDone()) {
-//                runCallback(callback);
-//            } else {
-//                this.pendingCallbacks.add(callback);
-//            }
-//        } finally {
-//            lock.unlock();
-//        }
-//        return this;
-//    }
 
     private void runCallback(final AsyncKKCallback callback) {
         final Response res = this.response;
@@ -129,7 +118,8 @@ public class KKFuture implements Future<Object> {
         });
     }
 
-    static class Sync extends AbstractQueuedSynchronizer {
+
+    static class StatusSync extends AbstractQueuedSynchronizer {
 
         private static final long serialVersionUID = 1L;
 
@@ -137,11 +127,11 @@ public class KKFuture implements Future<Object> {
         private final int done = 1;
         private final int pending = 0;
 
-        public boolean tryAcquire(int acquires) {
+        protected boolean tryAcquire(int acquires) {
             return getState() == done ? true : false;
         }
 
-        public boolean tryRelease(int releases) {
+        protected boolean tryRelease(int releases) {
             if (getState() == pending) {
                 if (compareAndSetState(pending, done)) {
                     return true;
