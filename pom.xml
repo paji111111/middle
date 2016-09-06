@@ -9,6 +9,7 @@
         <module>core</module>
         <module>test</module>
         <module>bbfgf</module>
+        <module>myself</module>
     </modules>
 
     <groupId>com.jason</groupId>

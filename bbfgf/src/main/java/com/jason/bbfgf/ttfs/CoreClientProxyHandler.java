@@ -15,6 +15,12 @@ public class CoreClientProxyHandler<T> implements InvocationHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CoreClientProxyHandler.class);
 
+    private Class<T> clazz;
+
+    public CoreClientProxyHandler(Class<T> clazz) {
+        this.clazz = clazz;
+    }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
@@ -51,6 +57,11 @@ public class CoreClientProxyHandler<T> implements InvocationHandler {
 
         CoreClientHandler handler = CoreClientConnectionManage.getInstance().chooseHandler();
         CoreClientFuture rpcFuture = handler.sendRequest(request);
+
+
+
         return rpcFuture.get();
+
+
     }
 }

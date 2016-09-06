@@ -45,7 +45,6 @@ public class CoreClientHandler extends SimpleChannelInboundHandler<Response> {
         this.remotePeer = this.channel.remoteAddress();
     }
 
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Response response) throws Exception {
         String requestId = response.getRequestId();
@@ -71,6 +70,10 @@ public class CoreClientHandler extends SimpleChannelInboundHandler<Response> {
     }
 
     public CoreClientFuture sendRequest(Request request) {
-        return null;
+        CoreClientFuture coreClientFuture = new CoreClientFuture(request);
+        pendingRPC.put(request.getRequestId(), coreClientFuture);
+        channel.writeAndFlush(request);
+
+        return coreClientFuture;
     }
 }

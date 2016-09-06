@@ -1,5 +1,6 @@
 package com.jason.bbfgf.ttfs;
 
+import com.jason.bbfgf.entity.Request;
 import com.jason.bbfgf.entity.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by paji on 16/9/5
@@ -17,13 +19,22 @@ public class CoreClientFuture implements Future<Object> {
     private static final Logger logger = LoggerFactory.getLogger(CoreClientFuture.class);
 
     private Response response;
+    private Request request;
 
-    private CoreSync coreSync;
+    private boolean done;
+    private ReentrantLock lock = new ReentrantLock();
+    private Condition condition = lock.newCondition();
 
     private CoreClientCallBack coreClientCallBack;
 
     private long startTime;
     private long responseTimeThreshold = 5000;
+
+    public CoreClientFuture(Request request) {
+        this.request = request;
+        this.startTime = System.currentTimeMillis();
+        this.done = false;
+    }
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
@@ -37,23 +48,41 @@ public class CoreClientFuture implements Future<Object> {
 
     @Override
     public boolean isDone() {
-        return false;
+        return done;
     }
 
     @Override
     public Object get() throws InterruptedException, ExecutionException {
-        return null;
+        if (!isDone()) {
+            this.lock.lock();
+            try {
+                condition.await();
+            } finally {
+                this.lock.unlock();
+            }
+        }
+        return response;
     }
 
     @Override
     public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return null;
+        if (!isDone()) {
+            this.lock.lock();
+            try {
+                boolean done = condition.await(timeout, unit);
+                if (!done) {
+                    throw new TimeoutException("waiting response timeout!");
+                }
+            } finally {
+                this.lock.unlock();
+            }
+        }
+        return response;
     }
 
     public void done(Response response) {
         this.response = response;
-        coreSync.release(1);
-
+        this.done = true;
         runCallback(coreClientCallBack);
 
         long responseTime = System.currentTimeMillis() - startTime;
@@ -75,34 +104,4 @@ public class CoreClientFuture implements Future<Object> {
             }
         });
     }
-
-
-
-    private static final class CoreSync extends AbstractQueuedSynchronizer {
-
-        private static final long serialVersionUID = 1L;
-
-        //future status
-        private final int done = 1;
-        private final int pending = 0;
-
-        public boolean tryAcquire(int acquires) {
-            return getState() == done ? true : false;
-        }
-
-        public boolean tryRelease(int releases) {
-            if (getState() == pending) {
-                if (compareAndSetState(pending, done)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public boolean isDone() {
-            getState();
-            return getState() == done;
-        }
-    }
-
 }

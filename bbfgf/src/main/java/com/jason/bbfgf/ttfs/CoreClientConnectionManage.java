@@ -101,7 +101,6 @@ public class CoreClientConnectionManage {
         }
     }
 
-
     private void connectServerNode(final InetSocketAddress remotePeer) {
         threadPoolExecutor.submit(new Runnable() {
             @Override
