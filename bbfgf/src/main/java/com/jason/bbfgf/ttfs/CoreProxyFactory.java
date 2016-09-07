@@ -7,7 +7,7 @@ import net.sf.cglib.proxy.MethodProxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-/**
+/** 代理工厂类
  * Created by paji on 16/9/6
  */
 public class CoreProxyFactory {
@@ -24,9 +24,6 @@ public class CoreProxyFactory {
     public <T> T proxy(Class<T> clazz, final InvocationHandler invcationHandler) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clazz);
-        // 此处在Callback的子类中之所以选择了MethodInterceptor，而不选择InvocationHandler是因为
-        // 1、MethodInterceptor扩展性更好;
-        // 2、InvocationHandler与JDK的类重名，书写麻烦.
         enhancer.setCallback(new MethodInterceptorAdaptor(invcationHandler));
 
         return (T) enhancer.create();

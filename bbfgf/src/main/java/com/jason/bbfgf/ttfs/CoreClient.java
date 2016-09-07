@@ -13,7 +13,7 @@ public class CoreClient {
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16, 600L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(65536));
 
     /**
-     * 通过代理执行远程
+     * 通过代理执行远程 jdk
      */
     public <T> T create(Class<T> interfaceClass){
         return (T)Proxy.newProxyInstance(interfaceClass.getClassLoader(),
@@ -21,6 +21,10 @@ public class CoreClient {
                 new CoreClientProxyHandler<T>(interfaceClass)
                 );
     }
+
+
+
+
 
     /**
      * 处理客户端接受数据包装
