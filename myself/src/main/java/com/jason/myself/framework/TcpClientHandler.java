@@ -35,15 +35,13 @@ public class TcpClientHandler extends SimpleChannelInboundHandler {
         cause.printStackTrace();
     }
 
-
     public void send(final Channel channel , MethodAndArgs methodAndArgs){
-
         String requestId = String.valueOf(System.currentTimeMillis());
-
         methodAndArgs.setRequestId(requestId);
-        channel.writeAndFlush(methodAndArgs);
 
-        map.put(requestId,methodAndArgs);
+        if( map.put(requestId,methodAndArgs) != null ){
+            channel.writeAndFlush(methodAndArgs);
+        }
     }
 
 }
