@@ -25,12 +25,14 @@ public class ClientInvocationHandler implements InvocationHandler {
 
     final String host;
     final int port;
+    final String interfazeName;
     Channel channel;
     final TcpClientHandler tcpClientHandler = new TcpClientHandler();
 
-    public ClientInvocationHandler(String host, int port) {
+    public ClientInvocationHandler(String host, int port , Class interfaceClass) {
         this.host = host;
         this.port = port;
+        this.interfazeName = interfaceClass.getName();
 
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
@@ -56,7 +58,7 @@ public class ClientInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        MethodAndArgs mArgs = new MethodAndArgs(method.getName(), method.getParameterTypes(), args);
+        MethodAndArgs mArgs = new MethodAndArgs(interfazeName,method.getName(), method.getParameterTypes(), args);
 
         try {
             channel.writeAndFlush(mArgs) ;//TODO 此处有猫腻

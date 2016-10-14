@@ -11,18 +11,19 @@ import java.lang.reflect.Method;
  */
 public class TcpServerHandler extends ChannelInboundHandlerAdapter {
 
-    private Object classObj;
     private Object response;
 
-    public TcpServerHandler(Object classObj) {
+    public TcpServerHandler() {
         super();
-        this.classObj = classObj;
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
         MethodAndArgs methodAndArgs = (MethodAndArgs) msg;
+
+        Object classObj = MyFramework.serviceMapStore.get(methodAndArgs.getInterfaceName());
+
         Method method = classObj.getClass().getMethod(methodAndArgs.getMethodName(), methodAndArgs.getTypes());
 
         ctx.channel().writeAndFlush(method.invoke(classObj, methodAndArgs.getArgs()));

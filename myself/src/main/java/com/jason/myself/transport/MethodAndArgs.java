@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class MethodAndArgs implements Serializable {
 
     private String requestId;
+    private String interfaceName;//调用的服务类
     private String methodName;//调用的方法名称
     private Class<?>[] types;//参数类型
     private Object[] args;//参数列表
@@ -16,11 +17,19 @@ public class MethodAndArgs implements Serializable {
         super();
     }
 
-    public MethodAndArgs(String methodName, Class<?>[] types, Object[] args) {
-
+    public MethodAndArgs(String interfaceName,String methodName, Class<?>[] types, Object[] args) {
+        this.interfaceName = interfaceName ;
         this.methodName = methodName;
         this.types = types;
         this.args = args;
+    }
+
+    public String getInterfaceName() {
+        return interfaceName;
+    }
+
+    public void setInterfaceName(String interfaceName) {
+        this.interfaceName = interfaceName;
     }
 
     public String getRequestId() {

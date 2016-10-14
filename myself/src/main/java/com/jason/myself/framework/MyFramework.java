@@ -13,13 +13,18 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
+import java.lang.reflect.MalformedParameterizedTypeException;
 import java.lang.reflect.Proxy;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 总框架类
  * Created by paji on 16/9/7
  */
 public class MyFramework {
+
+    public static final Map<String,Object> serviceMapStore = new ConcurrentHashMap<String,Object>();
 
     /**
      * 服务注册
@@ -30,36 +35,25 @@ public class MyFramework {
      * @throws InterruptedException
      */
     public static void register(final Object classObj, int port, String ip) throws InterruptedException {
-        int BIZGROUPSIZE = Runtime.getRuntime().availableProcessors() * 2;
 
-        int BIZTHREADSIZE = 100;
-        EventLoopGroup bossGroup = new NioEventLoopGroup(BIZGROUPSIZE);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(BIZTHREADSIZE);
         if (classObj == null)
             throw new IllegalArgumentException("对象不能为null");
         if (port <= 0 || port > 65535)
             throw new IllegalArgumentException("错误的端口" + port);
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workerGroup);
-        bootstrap.channel(NioServerSocketChannel.class);
-        bootstrap.childHandler(new ChannelInitializer<Channel>() {
 
-            @Override
-            protected void initChannel(Channel ch) throws Exception {
-                // TODO Auto-generated method stub
-                ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
-                pipeline.addLast(new LengthFieldPrepender(4));
-                pipeline.addLast("encoder", new ObjectEncoder());
-                pipeline.addLast("decoder", new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers.cacheDisabled(null)));
-                // pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
-                // pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
-                pipeline.addLast(new TcpServerHandler(classObj));
-            }
-        });
-        Channel channel = bootstrap.bind(ip, port).syncUninterruptibly().channel();
-        // channel.closeFuture().sync();//TODO 此处可以单独拎出来做一个停止服务的函数
-        System.out.println("TCP服务器已启动");
+
+        Class [] interfaceStrKey = classObj.getClass().getInterfaces();
+        if(interfaceStrKey.length == 0 ){
+            throw  new  InterruptedException("not find imploment interface");
+        }
+
+        if(interfaceStrKey.length > 1 ) {
+            throw new InterruptedException("error impl imploment interface");
+        }
+
+        serviceMapStore.put(interfaceStrKey[0].getName() , classObj );
+
+        ServiceBootStrap.getInstance().startFramework(ip,port);
     }
 
     /**
@@ -81,7 +75,7 @@ public class MyFramework {
         if (port <= 0 || port > 65535)
             throw new IllegalArgumentException("端口错误：" + port);
 
-        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass}, new ClientInvocationHandler(host, port));
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass}, new ClientInvocationHandler(host, port,interfaceClass));
 
     }
 }
