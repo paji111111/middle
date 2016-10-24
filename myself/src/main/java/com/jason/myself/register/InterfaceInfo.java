@@ -13,7 +13,7 @@ public class InterfaceInfo {
 
     private String interfaceName;
 
-    private List<String> methodList;
+    private List<MethodInfo> methodInfoList;
 
     public String getInterfaceName() {
         return interfaceName;
@@ -23,24 +23,21 @@ public class InterfaceInfo {
         this.interfaceName = interfaceName;
     }
 
-    public List<String> getMethodList() {
-        return methodList;
+    public List<MethodInfo> getMethodInfoList() {
+        return methodInfoList;
     }
 
-    public void setMethodList(List<String> methodList) {
-        this.methodList = methodList;
+    public void setMethodInfoList(List<MethodInfo> methodInfoList) {
+        this.methodInfoList = methodInfoList;
     }
 
     private boolean verifyRepeatMethod() throws Exception {
-
-        if (CollectionUtils.isNotEmpty(methodList)){
-            Set methodSet = new HashSet(methodList);
-            return methodSet.size() != methodList.size();
+        if (CollectionUtils.isNotEmpty(methodInfoList)){
+            Set methodSet = new HashSet(methodInfoList);
+            return methodSet.size() == methodInfoList.size();
         }
-
         throw  new Exception("verify method error , methods must no repeat");
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -51,14 +48,13 @@ public class InterfaceInfo {
 
         if (getInterfaceName() != null ? !getInterfaceName().equals(that.getInterfaceName()) : that.getInterfaceName() != null)
             return false;
-        return getMethodList() != null ? getMethodList().equals(that.getMethodList()) : that.getMethodList() == null;
-
+        return getMethodInfoList() != null ? getMethodInfoList().equals(that.getMethodInfoList()) : that.getMethodInfoList() == null;
     }
 
     @Override
     public int hashCode() {
         int result = getInterfaceName() != null ? getInterfaceName().hashCode() : 0;
-        result = 31 * result + (getMethodList() != null ? getMethodList().hashCode() : 0);
+        result = 31 * result + (getMethodInfoList() != null ? getMethodInfoList().hashCode() : 0);
         return result;
     }
 
