@@ -59,12 +59,12 @@ public class DBUtil {
         }
     }
 
-    private static ResultSet executeQuery(String querySql) throws SQLException {
+    public static ResultSet executeQuery(String querySql) throws SQLException {
         PreparedStatement pst = getConnection().prepareStatement(querySql);//准备执行语句
         return pst.executeQuery();
     }
 
-    private static int executeUpdateOrInsert(String updateSql) throws SQLException {
+    public static int executeUpdateOrInsert(String updateSql) throws SQLException {
         PreparedStatement pst = getConnection().prepareStatement(updateSql);//准备执行语句
         return pst.executeUpdate();
     }

@@ -19,8 +19,6 @@ public class RegServiceInfo {
 
     private Map<String,String> methodMap = new HashMap<>();// methodName params 可为空
 
-
-
     public String getHost() {
         return host;
     }

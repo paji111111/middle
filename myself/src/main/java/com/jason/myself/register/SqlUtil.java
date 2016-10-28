@@ -5,8 +5,10 @@ package com.jason.myself.register;
  */
 public class SqlUtil {
 
-    public static String getInsertSql(){
+    public static String transNodeSql(NodeData nodeData){
         return "";
     }
+
+
 
 }

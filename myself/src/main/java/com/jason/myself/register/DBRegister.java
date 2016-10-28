@@ -11,12 +11,9 @@ import java.util.List;
  */
 public class DBRegister implements Register {
 
-
-
     @Override
     public void regist(RegServiceInfo regServiceInfo) {
 
-
-
     }
+
 }
