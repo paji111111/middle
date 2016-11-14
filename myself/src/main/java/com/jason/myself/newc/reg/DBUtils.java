@@ -1,9 +1,11 @@
 package com.jason.myself.newc.reg;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.jason.myself.register.NodeData;
+import com.jason.myself.register.NodeType;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -41,33 +43,39 @@ public class DBUtils {
         connectionQueue.offer(connection);
     }
 
-    public static boolean isNodeExist(String nodepath) throws SQLException, ClassNotFoundException {
-
-        String sql =  "select * from nodestore where path='"+nodepath +"' limit 1";
+    public static boolean isNodeSigned(String nodePath, NodeType nodeType , String host, String port) throws SQLException, ClassNotFoundException {
+        String sql =  "select * from nodedata where nodename='"+nodePath +" and `type`="+ nodeType.getCode() +"' and ip = '"+host+"' and port = '"+port+"' limit 1";
         Connection connection = getConnection();
         ResultSet rs = connection.prepareStatement(sql).executeQuery();
 
         if (!rs.next()){
-            sql = " insert into nodestore(path) VALUES ( '"+ nodepath+"')";
+            sql = " insert into nodedata(nodename,`type`,ip,port,status) values ( '"+ nodePath+"','"+nodeType.getCode()+"','"+host+"','"+port+"','"+1+"')";
             connection.prepareStatement(sql).executeUpdate();
         }
         close(connection);
         return true;
     }
 
-    public static boolean isNodeSigned(String nodePath, String host, String port) throws SQLException, ClassNotFoundException {
-        String sql =  "select * from nodedate where nodename='"+nodePath +"' and ip = '"+host+"' and port = '"+port+"' limit 1";
+
+    public static List<NodeData> queryNodeDataList(NodeData nodeData) throws SQLException, ClassNotFoundException {
+        String sql = "select * from nodedata ";
+        if (nodeData!=null){
+            sql += " where `type` = "+ nodeData.getType();
+        }
         Connection connection = getConnection();
         ResultSet rs = connection.prepareStatement(sql).executeQuery();
+        List<NodeData> list = new ArrayList<>();
+        while (rs.next()){
+            NodeData nodeDataTmp = new NodeData();
+            nodeDataTmp.setNodeName(rs.getString("nodename"));
+            nodeDataTmp.setType(rs.getInt("type"));
+            nodeDataTmp.setIp(rs.getString("ip"));
+            nodeDataTmp.setPort(rs.getString("port"));
 
-        if (!rs.next()){
-            sql = " insert into nodedate(nodename,ip,port,status) values ( '"+ nodePath+"','"+host+"','"+port+"','"+1+"')";
-            connection.prepareStatement(sql).executeUpdate();
+            list.add(nodeDataTmp);
         }
-        close(connection);
-        return true;
+        return list;
     }
-
 
 
 

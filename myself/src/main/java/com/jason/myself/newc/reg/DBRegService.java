@@ -1,10 +1,10 @@
 package com.jason.myself.newc.reg;
 
 
-import com.jason.myself.register.DBUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.jason.myself.register.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,25 +25,46 @@ public class DBRegService implements RegService {
         checkMethodExist(host,port,app,interfaceName,method_params_list);
     }
 
+    @Override
+    public List<AppNode> pullAppNode() throws SQLException, ClassNotFoundException {
+        List<AppNode> appNodeList = new ArrayList<>();
+        List<NodeData> list = queryNode(null);
+        for (NodeData nodeData : list){
+            appNodeList.add((AppNode)nodeData);
+        }
+
+        return appNodeList;
+    }
+
+    @Override
+    public List<ServiceNode> pullServiceNode(String appName) {
+        return null;
+    }
+
+    @Override
+    public List<MethodParamNode> pullMethodParamNode(String ServiceName) {
+        return null;
+    }
+
     private void checkMethodExist(String host, String port, String app, String interfaceName, List<String> method_params_list) throws SQLException, ClassNotFoundException {
         String nodehead = "/"+app+"/"+interfaceName;
         for (String method_param : method_params_list){
             String node = nodehead+"/"+method_param;
-            DBUtils.isNodeExist(node);
-            DBUtils.isNodeSigned(node,host,port);
+            DBUtils.isNodeSigned(node,NodeType.METHOD,host,port);
         }
     }
 
     private void checkInterfaceExist(String host, String port, String app, String interfaceName) throws SQLException, ClassNotFoundException {
         String node ="/"+app+"/"+interfaceName;
-        DBUtils.isNodeExist(node);
-        DBUtils.isNodeSigned(node,host,port);
+        DBUtils.isNodeSigned(node,NodeType.SERVICE,host,port);
     }
 
     private void checkAppExist(String host , String port  , String app) throws SQLException, ClassNotFoundException {
-        DBUtils.isNodeExist(app);
-        DBUtils.isNodeSigned(app,host,port);
+        DBUtils.isNodeSigned(app,NodeType.APP,host,port);
     }
 
+    private List<NodeData> queryNode(NodeData nodeData) throws SQLException, ClassNotFoundException {
+        return DBUtils.queryNodeDataList(nodeData);
+    }
 
 }
