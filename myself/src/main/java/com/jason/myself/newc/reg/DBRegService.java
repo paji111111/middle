@@ -2,6 +2,7 @@ package com.jason.myself.newc.reg;
 
 
 import com.jason.myself.register.*;
+import org.springframework.beans.BeanUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,28 +29,56 @@ public class DBRegService implements RegService {
     @Override
     public List<AppNode> pullAppNode() throws SQLException, ClassNotFoundException {
         List<AppNode> appNodeList = new ArrayList<>();
-        List<NodeData> list = queryNode(null);
+        NodeData queryNodeData = new NodeData();
+        queryNodeData.setType(NodeType.APP.getCode());
+        List<NodeData> list = queryNode(queryNodeData);
         for (NodeData nodeData : list){
-            appNodeList.add((AppNode)nodeData);
+            AppNode appNode = new AppNode();
+            BeanUtils.copyProperties(nodeData,appNode);
+            appNodeList.add(appNode);
         }
 
         return appNodeList;
     }
 
     @Override
-    public List<ServiceNode> pullServiceNode(String appName) {
-        return null;
+    public List<ServiceNode> pullServiceNode(String appName) throws SQLException, ClassNotFoundException {
+
+        List<ServiceNode> serviceNodeList = new ArrayList<>();
+        NodeData queryServiceNode = new ServiceNode();
+        queryServiceNode.setNodeName(appName);
+        queryServiceNode.setType(NodeType.SERVICE.getCode());
+        List<NodeData> list = queryNode(queryServiceNode);
+        for (NodeData nodeData : list){
+            ServiceNode serviceNode = new ServiceNode();
+            BeanUtils.copyProperties(nodeData,serviceNode);
+            serviceNodeList.add(serviceNode);
+        }
+
+        return serviceNodeList;
     }
 
     @Override
-    public List<MethodParamNode> pullMethodParamNode(String ServiceName) {
-        return null;
+    public List<MethodParamNode> pullMethodParamNode(String ServiceName) throws SQLException, ClassNotFoundException {
+
+        List<MethodParamNode> methodParamNodeList = new ArrayList<>();
+        NodeData queryMethodParamNode = new MethodParamNode();
+        queryMethodParamNode.setNodeName(ServiceName);
+        queryMethodParamNode.setType(NodeType.METHOD.getCode());
+        List<NodeData> list = queryNode(queryMethodParamNode);
+        for (NodeData nodeData : list){
+            MethodParamNode methodParamNode = new MethodParamNode();
+            BeanUtils.copyProperties(nodeData,methodParamNode);
+            methodParamNodeList.add(methodParamNode);
+        }
+
+        return methodParamNodeList;
     }
 
     private void checkMethodExist(String host, String port, String app, String interfaceName, List<String> method_params_list) throws SQLException, ClassNotFoundException {
-        String nodehead = "/"+app+"/"+interfaceName;
+        String nodename = "/"+app+"/"+interfaceName;
         for (String method_param : method_params_list){
-            String node = nodehead+"/"+method_param;
+            String node = nodename+"/"+method_param;
             DBUtils.isNodeSigned(node,NodeType.METHOD,host,port);
         }
     }
@@ -60,7 +89,8 @@ public class DBRegService implements RegService {
     }
 
     private void checkAppExist(String host , String port  , String app) throws SQLException, ClassNotFoundException {
-        DBUtils.isNodeSigned(app,NodeType.APP,host,port);
+        String nodeName = "/"+app;
+        DBUtils.isNodeSigned(nodeName,NodeType.APP,host,port);
     }
 
     private List<NodeData> queryNode(NodeData nodeData) throws SQLException, ClassNotFoundException {

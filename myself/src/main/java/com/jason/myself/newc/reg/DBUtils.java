@@ -1,6 +1,7 @@
 package com.jason.myself.newc.reg;
 
 import com.jason.myself.register.NodeData;
+import com.jason.myself.register.NodeStatus;
 import com.jason.myself.register.NodeType;
 
 import java.sql.*;
@@ -49,7 +50,7 @@ public class DBUtils {
         ResultSet rs = connection.prepareStatement(sql).executeQuery();
 
         if (!rs.next()){
-            sql = " insert into nodedata(nodename,`type`,ip,port,status) values ( '"+ nodePath+"','"+nodeType.getCode()+"','"+host+"','"+port+"','"+1+"')";
+            sql = " insert into nodedata(nodename,`type`,ip,port,status) values ( '"+ nodePath+"','"+nodeType.getCode()+"','"+host+"','"+port+"','"+ NodeStatus.OFFLINE+"')";
             connection.prepareStatement(sql).executeUpdate();
         }
         close(connection);
@@ -58,20 +59,25 @@ public class DBUtils {
 
 
     public static List<NodeData> queryNodeDataList(NodeData nodeData) throws SQLException, ClassNotFoundException {
-        String sql = "select * from nodedata ";
+        String sql = "select * from nodedata where 1=1 ";
         if (nodeData!=null){
-            sql += " where `type` = "+ nodeData.getType();
+            if (nodeData.getType()!=null)
+                sql += " and `type` = "+ nodeData.getType();
+
+            if (nodeData.getNodeName()!=null)
+                sql += " and nodeName like '"+ nodeData.getNodeName()+"%'";
         }
         Connection connection = getConnection();
         ResultSet rs = connection.prepareStatement(sql).executeQuery();
         List<NodeData> list = new ArrayList<>();
         while (rs.next()){
             NodeData nodeDataTmp = new NodeData();
+            nodeDataTmp.setId(rs.getInt("id"));
             nodeDataTmp.setNodeName(rs.getString("nodename"));
             nodeDataTmp.setType(rs.getInt("type"));
             nodeDataTmp.setIp(rs.getString("ip"));
             nodeDataTmp.setPort(rs.getString("port"));
-
+            nodeDataTmp.setStatus(rs.getInt("status"));
             list.add(nodeDataTmp);
         }
         return list;

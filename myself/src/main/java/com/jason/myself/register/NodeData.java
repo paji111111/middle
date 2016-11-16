@@ -8,6 +8,8 @@ import java.io.Serializable;
 public class NodeData implements Serializable{
     private static final long serialVersionUID = -4435991473297440672L;
 
+    private Integer id;
+
     private String nodeName;
 
     private Integer type;
@@ -16,6 +18,17 @@ public class NodeData implements Serializable{
 
     private String port;
 
+    private Integer status;
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public NodeData setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
     public String getNodeName() {
         return nodeName;
@@ -51,5 +64,26 @@ public class NodeData implements Serializable{
     public NodeData setPort(String port) {
         this.port = port;
         return this;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public NodeData setStatus(Integer status) {
+        this.status = status;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "NodeData{" +
+                "id=" + id +
+                ", nodeName='" + nodeName + '\'' +
+                ", type=" + type +
+                ", ip='" + ip + '\'' +
+                ", port='" + port + '\'' +
+                ", status=" + status +
+                '}';
     }
 }

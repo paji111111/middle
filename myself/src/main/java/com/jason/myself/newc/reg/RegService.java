@@ -34,13 +34,13 @@ public interface RegService {
      * @param appName
      * @return
      */
-    public List<ServiceNode> pullServiceNode(String appName);
+    public List<ServiceNode> pullServiceNode(String appName) throws SQLException, ClassNotFoundException;
 
     /**
      * 根据服务名称获取方法列表
      * @param ServiceName
      * @return
      */
-    public List<MethodParamNode> pullMethodParamNode(String ServiceName);
+    public List<MethodParamNode> pullMethodParamNode(String ServiceName) throws SQLException, ClassNotFoundException;
 
 }

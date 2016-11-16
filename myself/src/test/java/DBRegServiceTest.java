@@ -1,5 +1,8 @@
 import com.jason.myself.newc.reg.DBRegService;
 import com.jason.myself.newc.reg.RegService;
+import com.jason.myself.register.AppNode;
+import com.jason.myself.register.MethodParamNode;
+import com.jason.myself.register.ServiceNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +26,19 @@ public class DBRegServiceTest {
 
         RegService regService = new DBRegService();
         try {
-            regService.regist( host , port , app , interfaceName , method_params_list );
+          //  regService.regist( host , port , app , interfaceName , method_params_list );
+            List<AppNode> list = regService.pullAppNode();
+            System.out.println(list);
+
+            for (AppNode appNode: list) {
+                 List<ServiceNode> serviceNodeList = regService.pullServiceNode(appNode.getNodeName());
+                 System.out.println(serviceNodeList);
+                for (ServiceNode serviceNode:serviceNodeList) {
+                    List<MethodParamNode> methodParamNodeList = regService.pullMethodParamNode(serviceNode.getNodeName());
+                    System.out.println(methodParamNodeList);
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
