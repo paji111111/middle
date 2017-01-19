@@ -52,7 +52,13 @@ public class DBAsycTool {
     }
 
     private static void tableAlter() {
+        List<String> devTableList = tableMap.get("devTable");
 
+        if (CollectionUtils.isNotEmpty(devTableList)) {
+            for (String devTable :devTableList){
+
+            }
+        }
     }
 
     private static void tableListMap() throws SQLException {
